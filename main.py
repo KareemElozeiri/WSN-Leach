@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import pickle
+from simulation_fixed_heads import run
 
 N_SENSORS = 100 # No. of Sensors
 
@@ -72,46 +73,44 @@ def plot_remaining_energies(rem_energies,sim_case,im_text, nodes):
         
         graph_topology(nodes, s[0],s[1],sim_case_str,rem_energies[i],cycles[i])
 
-if __name__ == "__main__":
-    simulations = [(50,50)]
-    sim_case = 1
-    C = 5
+# if __name__ == "__main__":
+#     simulations = [(50,50)]
+#     sim_case = 1
+#     C = 5
 
-    for s in simulations:
-        if sim_case == 1:
-            sim_case_str = 'Center'
-        else:
-            sim_case_str = 'Out'
+#     for s in simulations:
+#         if sim_case == 1:
+#             sim_case_str = 'Center'
+#         else:
+#             sim_case_str = 'Out'
 
 
-        dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
-        plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str, 'Given criteria') 
-        plot_remaining_energies(rem_energies,sim_case_str, 'Given criteria', nodes)
+#         dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
+#         plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str, 'Given criteria') 
+#         plot_remaining_energies(rem_energies,sim_case_str, 'Given criteria', nodes)
 
-        # sim_case+=1
+#         # sim_case+=1
         
-        # # Finding optimal R
-        # x_s , y_s = s
-        # R_range, T1s, R_max, T1_max, energies,TLs = find_optimal_R(x_s, y_s, 100)
-        # plt.plot(R_range, T1s)
-        # plt.title(f'{sim_case_str}: T_1 VS R')
-        # plt.xlabel('R')
-        # plt.ylabel('T1')
-        # plt.show()
-        # plt.plot(R_range, TLs)
-        # plt.title(f'{sim_case_str}: T_Last VS R')
-        # plt.xlabel('R')
-        # plt.ylabel('T1')
-        # plt.show()
-        # print(R_max, T1_max)
+#         # # Finding optimal R
+#         # x_s , y_s = s
+#         # R_range, T1s, R_max, T1_max, energies,TLs = find_optimal_R(x_s, y_s, 100)
+#         # plt.plot(R_range, T1s)
+#         # plt.title(f'{sim_case_str}: T_1 VS R')
+#         # plt.xlabel('R')
+#         # plt.ylabel('T1')
+#         # plt.show()
+#         # plt.plot(R_range, TLs)
+#         # plt.title(f'{sim_case_str}: T_Last VS R')
+#         # plt.xlabel('R')
+#         # plt.ylabel('T1')
+#         # plt.show()
+#         # print(R_max, T1_max)
 
-        # dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str,R=R_max, im_text = 'Developed criteria')
-        # plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str, 'Developed criteria') 
-        # plot_remaining_energies(rem_energies,sim_case_str, 'Developed criteria', nodes)
+#         # dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str,R=R_max, im_text = 'Developed criteria')
+#         # plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str, 'Developed criteria') 
+#         # plot_remaining_energies(rem_energies,sim_case_str, 'Developed criteria', nodes)
 
 
-    
-        
         
         
         
