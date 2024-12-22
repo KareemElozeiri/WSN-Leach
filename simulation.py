@@ -2,6 +2,7 @@ from node import Node
 import numpy as np 
 import matplotlib.pyplot as plt
 import pickle
+import random
 
 def generate_topology(N,C, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
     np.random.seed(70)
@@ -94,22 +95,45 @@ def graph_grpups(groups,center,C):
     plt.show()
 
 
-def elect_cluster_head(groups,x_s,y_s):
-    for group in groups:
+def elect_cluster_head(groups,x_s,y_s, C)->list:
+    elected_heads = []
+    for group in list(groups.values()):
         group_candidates = []
-        for node in group:
-            if node.energy() >= node.calculate_energy_head(x_s,y_s):
-                group_candidates.append(node)
+        for i, node in enumerate(group):
+            node.MODE("node")
+            if node.energy >= node.calculate_energy_head(x_s,y_s)*C:
+                group_candidates.append(i)
+        
+        cluster_head_idx = random.choice(group_candidates)
+        group[cluster_head_idx].MODE("head")
+        elected_heads.append(cluster_head_idx)
                             
-    pass 
+    return elected_heads
 
-def run_iteration(nodes,groups, sink_x, sink_y, R, im_text = 'Given criteria'):
+def run_iteration(nodes,groups, elected_heads, sink_x, sink_y, R):
     dead_count = 0
-    remaining_energies = np.zeros(len(nodes))
+    remaining_energies = {}
+    
+    for idx, group in enumerate(list(groups.values())):
+        elected_head_idx = elected_heads[idx]
+        elected_head_node = group[elected_head_idx]
+        remaining_energies_group = []
+        for node in group:
+            if node.MODE == "node":
+                node.consume_energy(elected_head_node.x, elected_head_node.y)
+                if node.is_dead():
+                    dead_count += 1
+
+            else:
+                node.consume_energy(sink_x, sink_y)
+            
+            remaining_energies_group.append(node.energy)
+        
+        remaining_energies[idx] = remaining_energies_group
 
     return dead_count, remaining_energies
 
-def run_simulation(sink_x, sink_y, N_sensors,sim_case,R,im_criteria, C=5):
+def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5):
     
     nodes, groups, center = generate_topology(N_sensors, C)
 
@@ -119,14 +143,20 @@ def run_simulation(sink_x, sink_y, N_sensors,sim_case,R,im_criteria, C=5):
     pass
     dead_counts = []
     energies = []
-    
+    iter = 0
     while True:
-        dead_count, curr_energies = run_iteration(nodes, sink_x, sink_y,R, im_criteria)
+
+        if iter % C == 0:
+            elect_cluster_heads = elect_cluster_head(groups, sink_x, sink_y, C) 
+
+        dead_count, curr_energies = run_iteration(nodes, sink_x, sink_y, R)
         dead_counts.append(dead_count)
         energies.append(curr_energies)
 
         if dead_count == len(nodes):
             break
+
+        iter += 1
     
     dead_counts = np.array(dead_counts)
     special_cycles = [(np.argmin(np.abs(dead_counts-x))) for x in [1,N_sensors/2,N_sensors]] #first, half, last
