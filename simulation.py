@@ -53,6 +53,10 @@ def graph_topology(nodes, sink_x, sink_y,sim_case, energies = None, cycle=None):
 
     # with open(f'Figures//{sim_case}//{title}.fig', 'wb') as fig_file:
     #     pickle.dump(fig, fig_file)
+
+def elect_cluster_head(nodes):
+    pass 
+
 def run_iteration(nodes, sink_x, sink_y, R=30, im_criteria= 'Given'):
     dead_count = []
     remaining_energies = []
