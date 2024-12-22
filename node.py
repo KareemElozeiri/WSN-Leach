@@ -79,12 +79,18 @@ class Node():
             else:
                 self._energy = self._energy - E_tx
     
-    def _consume_head(self, x_s, y_s):
+    def calculate_energy_head(self, x_s, y_s):
         E_rx = k*E_ELEC
         E_tx = self.calculate_energy(x_s, y_s)
         E_agg_total = k * E_agg
         
         E_total = E_rx + E_tx + E_agg_total
+        return E_total
+        
+    
+    def _consume_head(self, x_s, y_s):
+        
+        E_total = self.calculate_energy_head(self,x_s,y_s)
 
         if self._energy - E_total < 0:
                 self._dead = True
