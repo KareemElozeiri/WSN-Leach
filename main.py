@@ -89,9 +89,16 @@ if __name__ == "__main__":
         plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
         plot_remaining_energies(rem_energies,sim_case_str, nodes)
         
+        sim_case_str = 'part D'
+        best_remaining_energies = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
+        plot_remaining_energies([best_remaining_energies, best_remaining_energies],sim_case_str, nodes)
         
         sim_case_str = 'Fixed'
         dead_counts , rem_energies, special_cycles, special_values, nodes, cluster_heads = run_fixed_head_simulation(s[0],s[1], N_SENSORS,R = 25)
         plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
         plot_remaining_energies(rem_energies,sim_case_str, nodes.extend(cluster_heads))
+
+        
+
+
 

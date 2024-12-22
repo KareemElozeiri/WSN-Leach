@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle
 import random
 
-def generate_topology(N,C, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
+def generate_topology(N, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
     np.random.seed(70)
     potential_points = N**2
     X = np.linspace(x1, x2, potential_points)
@@ -18,19 +18,23 @@ def generate_topology(N,C, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
     
     nodes = [Node(X[i], Y[i]) for i in range(len(X))]
     
+    return nodes
+
+def generate_groups(nodes, n_cluster, center=(50,50)):
+
     center_x, center_y = center
     angles = np.arctan2([node.y - center_y for node in nodes], [node.x - center_x for node in nodes])
     angles = (angles + 2 * np.pi) % (2 * np.pi) 
     
-    sectors = np.linspace(0, 2 * np.pi, 5 + 1)
-    groups = {i: [] for i in range(5)}
+    sectors = np.linspace(0, 2 * np.pi, n_cluster + 1)
+    groups = {i: [] for i in range(n_cluster)}
     for i, angle in enumerate(angles):
-        for j in range(5):
+        for j in range(n_cluster):
             if sectors[j] <= angle < sectors[j + 1]:
                 groups[j].append(nodes[i])
                 break
-    
-    return nodes, groups, center
+
+    return groups
 
 def graph_topology(nodes, sink_x, sink_y,sim_case, energies = None, cycle=None):
     X_coords = [node.x for node in nodes]
@@ -67,7 +71,7 @@ def graph_topology(nodes, sink_x, sink_y,sim_case, energies = None, cycle=None):
     # with open(f'Figures//{sim_case}//{title}.fig', 'wb') as fig_file:
     #     pickle.dump(fig, fig_file)
 
-def graph_grpups(groups,center,C):
+def graph_groups(groups,center,C):
     colors = ['red', 'blue', 'green', 'purple', 'orange']
     plt.figure(figsize=(10, 10))
     center_x, center_y = center
@@ -114,7 +118,7 @@ def elect_cluster_head(groups,x_s,y_s, C)->list:
                             
     return elected_heads
 
-def run_iteration(nodes,groups, elected_heads, sink_x, sink_y, R):
+def run_iteration(groups, elected_heads, sink_x, sink_y, R=25):
     dead_count = 0
     remaining_energies = {}
     
@@ -139,12 +143,71 @@ def run_iteration(nodes,groups, elected_heads, sink_x, sink_y, R):
 
     return dead_count, rem_energies
 
-def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5):
+def get_T1_C(nodes, sink_x, sink_y, C_range):
+
+    T1_list = [] 
+    max_T1 = -1  
+    best_C = 2
+    n_clusters = 5
     
-    nodes, groups, center = generate_topology(N_sensors, C)
+
+    for C in C_range:
+        iter = 0
+        dead_count = 0
+        remaining_energies = []
+        nodes = generate_topology(100)
+        groups = generate_groups(nodes, n_clusters)
+
+        while True:
+            if iter % C == 0:
+                elected_heads = elect_cluster_head(groups, sink_x, sink_y, C)
+
+            dead_count, remaining_energies = run_iteration(groups, elected_heads, sink_x, sink_y)
+            iter += 1
+
+            if dead_count > 0:
+                T1 = iter
+                T1_list.append(T1)
+                
+                if T1 > max_T1:
+                    max_T1 = T1
+                    best_C = C
+                    best_remaining_energies = remaining_energies
+                break
+            
+    return best_C, max_T1, T1_list, best_remaining_energies
+
+def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5, n_cluster = 5):
+    
+    nodes = generate_topology(N_sensors)
+    groups = generate_groups(nodes, n_cluster)
 
     graph_topology(nodes, 50, 50,'', energies = None, cycle=None)
-    graph_grpups(groups,(sink_x,sink_y),C)
+    graph_groups(groups,(sink_x,sink_y), n_cluster)
+
+    C_range = range(2,11,1) 
+
+    if sim_case == 'part D':
+        best_C, max_T1, T1_list, best_remaining_energies = get_T1_C(nodes, sink_x, sink_y, C_range)
+        print(f'The optimum C that maximizes T1: {best_C} for {max_T1} cycles (T1)')
+        
+        # Plot C_range vs. T1_list
+        plt.figure(figsize=(8, 6))
+        plt.plot(C_range, T1_list, marker='o', linestyle='-', color='b', label='T1 values')
+        # Labels and Title
+        plt.title("C Range vs T1 Values", fontsize=14)
+        plt.xlabel("C (number of cycles)", fontsize=12)
+        plt.ylabel("T1 (Iteration when first node dies)", fontsize=12)
+        plt.grid(alpha=0.5)
+        plt.legend(fontsize=10)
+        plt.xticks(C_range)
+        plt.tight_layout()
+
+        # Show the plot
+        plt.show()
+
+        return best_remaining_energies
+        
     
     pass
     dead_counts = []
@@ -155,7 +218,7 @@ def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5):
         if iter % C == 0:
             elect_cluster_heads = elect_cluster_head(groups, sink_x, sink_y, C) 
 
-        dead_count, curr_energies = run_iteration(nodes, groups, elect_cluster_heads, sink_x, sink_y, R)
+        dead_count, curr_energies = run_iteration(groups, elect_cluster_heads, sink_x, sink_y, R)
         dead_counts.append(dead_count)
         energies.append(curr_energies)
 
