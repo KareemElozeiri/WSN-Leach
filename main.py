@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import pickle
-from simulation_fixed_heads import run_fixed_head_simulation
+from simulation_fixed_heads import run_fixed_head_simulation, graph_topology_with_heads
 
 N_SENSORS = 100 # No. of Sensors
 
@@ -48,7 +48,7 @@ def plot_remaining_energies(rem_energies,sim_case,nodes):
         plt.bar(X_coords, y_coords, color='blue', alpha=0.6)
         plt.xlim(0, 100)
         plt.ylim(0, 2)
-        title = f'Remaining Node Energies {cycles[i]}'
+        title = f'{sim_case_str} - Remaining Node Energies {cycles[i]}'
         plt.title(title)
         plt.xlabel('Node')
         plt.ylabel('Energy (Joule)')
@@ -58,10 +58,10 @@ def plot_remaining_energies(rem_energies,sim_case,nodes):
         plt.subplot(1, 2, 2)
         sns.histplot(y_coords, bins=20, kde=True, color='purple', alpha=0.6)
         plt.xlim(0, 2)
-        plt.title(f'Energy Distribution {cycles[i]}')
+        plt.title(f'{sim_case_str} - Energy Distribution {cycles[i]}')
         plt.xlabel('Energy (Joule)')
         plt.ylabel('Density')
-        
+        plt.show()
         
         # title = f'{sim_case} {im_text} {title}'
         # fig.savefig(f'Figures//{sim_case}//{im_text},{title}.jpg')
@@ -70,8 +70,8 @@ def plot_remaining_energies(rem_energies,sim_case,nodes):
         #     pickle.dump(fig, fig_file)
         #     plt.tight_layout()
         #     plt.show()
-        
-        graph_topology(nodes, s[0],s[1],sim_case_str,rem_energies[i],cycles[i])
+        if sim_case_str == "Rotation":
+            graph_topology(nodes, s[0],s[1],sim_case_str,rem_energies[i],cycles[i])
 
 if __name__ == "__main__":
     simulations = [(50,50)]
@@ -84,14 +84,14 @@ if __name__ == "__main__":
         # else:
         #     sim_case_str = 'Fixed'
 
-        # sim_case_str = 'Rotation'
-        # dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
-        # plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
-        # plot_remaining_energies(rem_energies,sim_case_str, nodes)
+        sim_case_str = 'Rotation'
+        dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
+        plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
+        plot_remaining_energies(rem_energies,sim_case_str, nodes)
         
         
         sim_case_str = 'Fixed'
-        dead_counts , rem_energies, special_cycles, special_values, nodes, _ = run_fixed_head_simulation(s[0],s[1], N_SENSORS,R = 25)
+        dead_counts , rem_energies, special_cycles, special_values, nodes, cluster_heads = run_fixed_head_simulation(s[0],s[1], N_SENSORS,R = 25)
         plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
-        plot_remaining_energies(rem_energies,sim_case_str, nodes)
+        plot_remaining_energies(rem_energies,sim_case_str, nodes.extend(cluster_heads))
 
