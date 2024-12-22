@@ -22,10 +22,10 @@ def generate_topology(N,C, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
     angles = np.arctan2([node.y - center_y for node in nodes], [node.x - center_x for node in nodes])
     angles = (angles + 2 * np.pi) % (2 * np.pi) 
     
-    sectors = np.linspace(0, 2 * np.pi, C + 1)
-    groups = {i: [] for i in range(C)}
+    sectors = np.linspace(0, 2 * np.pi, 5 + 1)
+    groups = {i: [] for i in range(5)}
     for i, angle in enumerate(angles):
-        for j in range(C):
+        for j in range(5):
             if sectors[j] <= angle < sectors[j + 1]:
                 groups[j].append(nodes[i])
                 break
@@ -97,16 +97,20 @@ def graph_grpups(groups,center,C):
 
 def elect_cluster_head(groups,x_s,y_s, C)->list:
     elected_heads = []
-    for group in list(groups.values()):
+    for group_idx, group in enumerate(list(groups.values())):
         group_candidates = []
         for i, node in enumerate(group):
-            node.MODE("node")
+            node.MODE = "node"
             if node.energy >= node.calculate_energy_head(x_s,y_s)*C:
                 group_candidates.append(i)
         
-        cluster_head_idx = random.choice(group_candidates)
-        group[cluster_head_idx].MODE("head")
-        elected_heads.append(cluster_head_idx)
+        if len(group_candidates) == 0:
+            print(f"Group {group_idx} is dead")
+            elected_heads.append(-1)
+        else:
+            cluster_head_idx = random.choice(group_candidates)
+            group[cluster_head_idx].MODE = "head"
+            elected_heads.append(cluster_head_idx)
                             
     return elected_heads
 
@@ -121,7 +125,7 @@ def run_iteration(nodes,groups, elected_heads, sink_x, sink_y, R):
         for node in group:
             if node.MODE == "node":
                 node.consume_energy(elected_head_node.x, elected_head_node.y)
-                if node.is_dead():
+                if node.isDead():
                     dead_count += 1
 
             else:
@@ -144,16 +148,16 @@ def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5):
     dead_counts = []
     energies = []
     iter = 0
+    elect_cluster_heads = []
     while True:
-
         if iter % C == 0:
             elect_cluster_heads = elect_cluster_head(groups, sink_x, sink_y, C) 
 
-        dead_count, curr_energies = run_iteration(nodes, sink_x, sink_y, R)
+        dead_count, curr_energies = run_iteration(nodes, groups, elect_cluster_heads, sink_x, sink_y, R)
         dead_counts.append(dead_count)
         energies.append(curr_energies)
 
-        if dead_count == len(nodes):
+        if elect_cluster_heads.count(-1) == 5:
             break
 
         iter += 1
@@ -165,4 +169,4 @@ def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5):
     return len(nodes) - np.array(dead_counts), np.array(energies)[special_cycles], np.array(special_cycles)+1, np.array(special_values),nodes
     # In the prev line, returned special_cycles + 1 , to start at cycle 1 not 0
     
-run_simulation(50,50, 100,'sim_case',30,'Given', 5)
+run_simulation(50,50, 100,'sim_case', 10)

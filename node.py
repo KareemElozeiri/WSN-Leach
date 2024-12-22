@@ -90,7 +90,7 @@ class Node():
     
     def _consume_head(self, x_s, y_s):
         
-        E_total = self.calculate_energy_head(self,x_s,y_s)
+        E_total = self.calculate_energy_head(x_s,y_s)
 
         if self._energy - E_total < 0:
                 self._dead = True
