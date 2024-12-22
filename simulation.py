@@ -22,8 +22,8 @@ def generate_topology(N,C, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
     angles = np.arctan2([node.y - center_y for node in nodes], [node.x - center_x for node in nodes])
     angles = (angles + 2 * np.pi) % (2 * np.pi) 
     
-    sectors = np.linspace(0, 2 * np.pi, 5 + 1)
-    groups = {i: [] for i in range(5)}
+    sectors = np.linspace(0, 2 * np.pi, (0.05 * N) + 1)
+    groups = {i: [] for i in range((0.05 * N))}
     for i, angle in enumerate(angles):
         for j in range(5):
             if sectors[j] <= angle < sectors[j + 1]:
@@ -135,7 +135,9 @@ def run_iteration(nodes,groups, elected_heads, sink_x, sink_y, R):
         
         remaining_energies[idx] = remaining_energies_group
 
-    return dead_count, remaining_energies
+    rem_energies = [item for val in remaining_energies.values() for item in val]
+
+    return dead_count, rem_energies
 
 def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5):
     
