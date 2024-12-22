@@ -22,8 +22,8 @@ def generate_topology(N,C, x1=0, x2=100, y1=0, y2=100, center=(50,50)):
     angles = np.arctan2([node.y - center_y for node in nodes], [node.x - center_x for node in nodes])
     angles = (angles + 2 * np.pi) % (2 * np.pi) 
     
-    sectors = np.linspace(0, 2 * np.pi, (0.05 * N) + 1)
-    groups = {i: [] for i in range((0.05 * N))}
+    sectors = np.linspace(0, 2 * np.pi, 5 + 1)
+    groups = {i: [] for i in range(5)}
     for i, angle in enumerate(angles):
         for j in range(5):
             if sectors[j] <= angle < sectors[j + 1]:
