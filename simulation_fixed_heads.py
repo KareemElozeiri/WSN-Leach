@@ -181,8 +181,8 @@ def find_optimal_R(sink_x, sink_y, N_sensors, R_range):
     return optimal_R[0]
 
 # Run Part E with R = 25
-alive_nodes, energies, cycles, values, nodes, heads = run_fixed_head_simulation(50, 50, 100, 25)
-print(energies)
+# alive_nodes, energies, cycles, values, nodes, heads = run_fixed_head_simulation(50, 50, 100, 25)
+# print(energies)
 # Run Part F to find optimal R
 # R_range = np.linspace(1, 30, 7)  # Test R values from 15m to 45m
 # optimal_R = find_optimal_R(50, 50, 100, R_range)

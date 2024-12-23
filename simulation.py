@@ -174,7 +174,6 @@ def get_T1_C(nodes, sink_x, sink_y, C_range):
                     best_C = C
                     best_remaining_energies = remaining_energies
                 break
-            
     return best_C, max_T1, T1_list, best_remaining_energies
 
 def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5, n_cluster = 5):
@@ -187,7 +186,7 @@ def run_simulation(sink_x, sink_y, N_sensors,sim_case, R, C=5, n_cluster = 5):
 
     C_range = range(2,11,1) 
 
-    if sim_case == 'part D':
+    if sim_case == 'optimum C':
         best_C, max_T1, T1_list, best_remaining_energies = get_T1_C(nodes, sink_x, sink_y, C_range)
         print(f'The optimum C that maximizes T1: {best_C} for {max_T1} cycles (T1)')
         

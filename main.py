@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import pickle
-from simulation_fixed_heads import run_fixed_head_simulation, graph_topology_with_heads
+from simulation_fixed_heads import run_fixed_head_simulation, graph_topology_with_heads, find_optimal_R
 
 N_SENSORS = 100 # No. of Sensors
 
@@ -79,24 +79,23 @@ if __name__ == "__main__":
     C = 5
 
     for s in simulations:
-        # if sim_case == 1:
-        #     sim_case_str = 'Rotation'
-        # else:
-        #     sim_case_str = 'Fixed'
 
         sim_case_str = 'Rotation'
         dead_counts , rem_energies, special_cycles, special_values, nodes = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
         plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
         plot_remaining_energies(rem_energies,sim_case_str, nodes)
         
-        sim_case_str = 'part D'
+        sim_case_str = 'optimum C'
         best_remaining_energies = run_simulation(s[0],s[1], N_SENSORS,sim_case_str, C)
-        plot_remaining_energies([best_remaining_energies, best_remaining_energies],sim_case_str, nodes)
+        plot_remaining_energies([best_remaining_energies, best_remaining_energies, best_remaining_energies],sim_case_str, nodes)
         
         sim_case_str = 'Fixed'
         dead_counts , rem_energies, special_cycles, special_values, nodes, cluster_heads = run_fixed_head_simulation(s[0],s[1], N_SENSORS,R = 25)
         plot_dead_counts(dead_counts,special_cycles,special_values,sim_case_str) 
         plot_remaining_energies(rem_energies,sim_case_str, nodes.extend(cluster_heads))
+
+        R_range = np.linspace(1, 30, 7)  # Test R values from 15m to 45m
+        optimal_R = find_optimal_R(50, 50, 100, R_range)
 
         
 
